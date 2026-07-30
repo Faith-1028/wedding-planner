@@ -39,34 +39,45 @@ App.config = {
         { id: 'gifts',      name: '礼金记账',     icon: '🧧', adminOnly: true },
         { id: 'users',      name: '用户管理',     icon: '⚙️', adminOnly: true },
         { id: 'logs',       name: '操作日志',     icon: '📝', adminOnly: true },
+        { id: 'settings',   name: '系统设置',     icon: '🛠️', adminOnly: true },
     ],
 
-    // ===== 宾客分组选项 =====
-    GUEST_GROUPS: ['男方亲友', '女方亲友', '同事', '好友'],
+    // ===== 默认选项（数据库 app_settings 表为空时使用）=====
+    DEFAULT_OPTIONS: {
+        GUEST_GROUPS:      ['男方亲友', '女方亲友', '同事', '好友'],
+        GUEST_STATUSES:    ['待邀请', '已邀请', '确认出席', '无法到场'],
+        SUPPLY_CATEGORIES: ['婚房布置', '仪式用品', '服饰珠宝', '酒水喜糖', '伴手礼', '签到用品', '其他'],
+        SUPPLY_STATUSES:   ['未采购', '已采购', '已打包'],
+        TASK_STATUSES:     ['未开始', '进行中', '已完成'],
+        BUDGET_CATEGORIES: ['婚宴酒席', '婚庆布置', '摄影摄像', '婚纱礼服', '珠宝首饰', '婚车', '喜糖伴手礼', '其他'],
+        STAFF_CATEGORIES:  ['四大金刚', '伴郎伴娘', '婚庆工作人员', '双方家人'],
+        SEATING_ZONES:     ['男方区', '女方区', '亲友区'],
+        MEMO_TAGS:         ['应急方案', '合同备注', '物品存放', '备用物资', '通用'],
+    },
 
-    // ===== 宾客状态 =====
-    GUEST_STATUSES: ['待邀请', '已邀请', '确认出席', '无法到场'],
+    // ===== 下拉选项的元信息（用于"系统设置"模块）=====
+    OPTION_META: [
+        { key: 'GUEST_GROUPS',      dbKey: 'guest_groups',      title: '宾客分组',   desc: '宾客所属人群分组' },
+        { key: 'GUEST_STATUSES',    dbKey: 'guest_statuses',    title: '宾客状态',   desc: '宾客邀请/出席状态' },
+        { key: 'SUPPLY_CATEGORIES', dbKey: 'supply_categories', title: '物资分类',   desc: '备婚物资所属类别' },
+        { key: 'SUPPLY_STATUSES',   dbKey: 'supply_statuses',   title: '物资状态',   desc: '物资采购/打包状态' },
+        { key: 'TASK_STATUSES',     dbKey: 'task_statuses',     title: '流程状态',   desc: '婚礼流程任务状态' },
+        { key: 'BUDGET_CATEGORIES', dbKey: 'budget_categories', title: '预算分类',   desc: '预算支出所属类别' },
+        { key: 'STAFF_CATEGORIES',  dbKey: 'staff_categories',  title: '工作人员分类', desc: '工作人员所属分组' },
+        { key: 'SEATING_ZONES',     dbKey: 'seating_zones',     title: '席位区域',   desc: '婚宴席位所属区域' },
+        { key: 'MEMO_TAGS',         dbKey: 'memo_tags',         title: '备忘录标签', desc: '紧急备忘录分类标签' },
+    ],
 
-    // ===== 物资分类 =====
+    // ===== 宾客分组选项（运行时由 loadDynamicOptions 覆盖）=====
+    GUEST_GROUPS:      ['男方亲友', '女方亲友', '同事', '好友'],
+    GUEST_STATUSES:    ['待邀请', '已邀请', '确认出席', '无法到场'],
     SUPPLY_CATEGORIES: ['婚房布置', '仪式用品', '服饰珠宝', '酒水喜糖', '伴手礼', '签到用品', '其他'],
-
-    // ===== 物资状态 =====
-    SUPPLY_STATUSES: ['未采购', '已采购', '已打包'],
-
-    // ===== 流程状态 =====
-    TASK_STATUSES: ['未开始', '进行中', '已完成'],
-
-    // ===== 预算分类 =====
+    SUPPLY_STATUSES:   ['未采购', '已采购', '已打包'],
+    TASK_STATUSES:     ['未开始', '进行中', '已完成'],
     BUDGET_CATEGORIES: ['婚宴酒席', '婚庆布置', '摄影摄像', '婚纱礼服', '珠宝首饰', '婚车', '喜糖伴手礼', '其他'],
-
-    // ===== 工作人员分类 =====
-    STAFF_CATEGORIES: ['四大金刚', '伴郎伴娘', '婚庆工作人员', '双方家人'],
-
-    // ===== 席位区域 =====
-    SEATING_ZONES: ['男方区', '女方区', '亲友区'],
-
-    // ===== 备忘录标签 =====
-    MEMO_TAGS: ['应急方案', '合同备注', '物品存放', '备用物资', '通用'],
+    STAFF_CATEGORIES:  ['四大金刚', '伴郎伴娘', '婚庆工作人员', '双方家人'],
+    SEATING_ZONES:     ['男方区', '女方区', '亲友区'],
+    MEMO_TAGS:         ['应急方案', '合同备注', '物品存放', '备用物资', '通用'],
 };
 
 // ===== 初始化 Supabase 客户端 =====
@@ -94,7 +105,37 @@ if (App.isSupabaseConfigured && typeof supabase !== 'undefined') {
     App.isSupabaseConfigured = false;
 }
 
+// ===== 动态加载下拉选项（从 app_settings 表覆盖默认值）=====
+App.config.loadDynamicOptions = async function() {
+    if (!App.isSupabaseConfigured) return; // 预览模式：用默认值
+    try {
+        const rows = await App.db.select('app_settings');
+        const map = {};
+        rows.forEach(r => { map[r.key] = r.value; });
+        // 把数据库里的 JSON 数组覆盖到 App.config 各常量上
+        const reverseMap = {
+            'guest_groups':      'GUEST_GROUPS',
+            'guest_statuses':    'GUEST_STATUSES',
+            'supply_categories': 'SUPPLY_CATEGORIES',
+            'supply_statuses':   'SUPPLY_STATUSES',
+            'task_statuses':     'TASK_STATUSES',
+            'budget_categories': 'BUDGET_CATEGORIES',
+            'staff_categories':  'STAFF_CATEGORIES',
+            'seating_zones':     'SEATING_ZONES',
+            'memo_tags':         'MEMO_TAGS'
+        };
+        for (const [dbKey, cfgKey] of Object.entries(reverseMap)) {
+            if (Array.isArray(map[dbKey]) && map[dbKey].length > 0) {
+                App.config[cfgKey] = map[dbKey];
+            }
+        }
+        console.log('[Config] 动态选项加载完成');
+    } catch(e) {
+        console.warn('[Config] 加载动态选项失败，使用默认值:', e);
+    }
+};
+
 // ===== 生成唯一客户端 ID（用于通知去重）=====
-App.clientId = (sessionStorage.getItem('app_client_id') || 
+App.clientId = (sessionStorage.getItem('app_client_id') ||
     (crypto.randomUUID ? crypto.randomUUID() : 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2)));
 sessionStorage.setItem('app_client_id', App.clientId);

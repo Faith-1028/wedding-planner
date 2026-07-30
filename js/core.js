@@ -366,7 +366,7 @@ App.realtime = {
         const tables = ['guests', 'timeline_tasks', 'games', 'supplies',
                         'budget_items', 'app_users', 'wedding_config', 'reminders',
                         'staff_contacts', 'seating_tables', 'seating_assignments',
-                        'memos', 'announcements', 'gifts'];
+                        'memos', 'announcements', 'gifts', 'app_settings'];
         tables.forEach(table => {
             const unsub = App.db.subscribe(table, (payload) => {
                 this.onDataChange(table, payload);
@@ -427,6 +427,21 @@ App.realtime = {
             'gifts': 'gifts'
         };
         const moduleId = moduleMap[table];
+
+        // 系统设置变更：重新加载动态选项，并触发所有受影响模块刷新
+        if (table === 'app_settings') {
+            clearTimeout(this._refreshTimers._settings);
+            this._refreshTimers._settings = setTimeout(async () => {
+                await App.config.loadDynamicOptions();
+                ['guests', 'supplies', 'memos', 'staff', 'seating', 'budget', 'timeline', 'settings'].forEach(id => {
+                    if (App.modules[id] && typeof App.modules[id].refresh === 'function') {
+                        try { App.modules[id].refresh(); } catch(e) {}
+                    }
+                });
+            }, 300);
+            return;
+        }
+
         if (moduleId && App.modules[moduleId] && typeof App.modules[moduleId].refresh === 'function') {
             // 延迟刷新避免并发
             clearTimeout(this._refreshTimers[moduleId]);

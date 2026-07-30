@@ -14,6 +14,60 @@ window.App = window.App || {};
 App.ui = {};
 
 // ============================================================
+// 0. 导航栏状态管理（响应式侧边栏）
+// ============================================================
+
+// 移动端断点（与 CSS @media max-width: 768px 保持一致）
+App.ui.MOBILE_BREAKPOINT = 768;
+// localStorage 键名 — 保存用户对侧边栏展开/收起的偏好
+App.ui.NAV_PREF_KEY = 'wedding_nav_open';
+
+// 判断当前是否为移动端视口
+App.ui.isMobile = function() {
+    return window.innerWidth <= App.ui.MOBILE_BREAKPOINT;
+};
+
+// 侧边导航栏是否处于展开状态
+App.ui.isNavOpen = function() {
+    var navList = document.getElementById('navList');
+    return navList ? navList.classList.contains('open') : false;
+};
+
+// 折叠侧边导航栏
+App.ui.collapseNav = function() {
+    var navList = document.getElementById('navList');
+    if (navList && navList.classList.contains('open')) {
+        navList.classList.remove('open');
+    }
+};
+
+// 展开侧边导航栏
+App.ui.expandNav = function() {
+    var navList = document.getElementById('navList');
+    if (navList) navList.classList.add('open');
+};
+
+// 将当前侧边栏状态保存到 localStorage（记录用户偏好）
+App.ui.saveNavState = function() {
+    try {
+        localStorage.setItem(App.ui.NAV_PREF_KEY, App.ui.isNavOpen() ? '1' : '0');
+    } catch(e) { /* localStorage 不可用时静默忽略 */ }
+};
+
+// 从 localStorage 恢复用户偏好（页面加载 / 登录后调用）
+App.ui.restoreNavState = function() {
+    // 桌面端导航栏始终展开（水平条），无需恢复
+    if (!App.ui.isMobile()) return;
+    try {
+        var saved = localStorage.getItem(App.ui.NAV_PREF_KEY);
+        // 只有明确保存了 '1' 才自动展开，默认关闭
+        if (saved === '1') {
+            App.ui.expandNav();
+        }
+    } catch(e) { /* 静默忽略 */ }
+};
+
+// ============================================================
 // 1. 导航 & 视图切换
 // ============================================================
 App.ui.initNav = function() {
@@ -26,21 +80,35 @@ App.ui.initNav = function() {
         return `<li><a class="nav-link" data-view="${m.id}">${m.icon} ${m.name}</a></li>`;
     }).join('');
 
-    // 点击导航
+    // 点击导航 — switchView 内部统一处理移动端自动折叠
     navList.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             App.ui.switchView(link.dataset.view);
-            // 移动端关闭菜单
-            navList.classList.remove('open');
         });
     });
 
-    // 移动端菜单切换
+    // 移动端菜单切换按钮 — 保存用户偏好到 localStorage
     const navToggle = document.getElementById('navToggle');
     if (navToggle) {
-        navToggle.addEventListener('click', () => navList.classList.toggle('open'));
+        navToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navList.classList.toggle('open');
+            App.ui.saveNavState();
+        });
     }
+
+    // 移动端：点击侧边栏以外空白区域，自动收起导航
+    document.addEventListener('click', (e) => {
+        if (!App.ui.isMobile()) return;       // 仅移动端生效
+        if (!App.ui.isNavOpen()) return;       // 导航未展开则跳过
+        // 点击目标在导航列表和切换按钮之外时收起
+        if (!navList.contains(e.target) &&
+            (!navToggle || !navToggle.contains(e.target))) {
+            App.ui.collapseNav();
+            App.ui.saveNavState();
+        }
+    });
 
     // 桌面端：箭头按钮滚动
     this._enableNavArrows(navList);
@@ -60,6 +128,9 @@ App.ui.initNav = function() {
 
     // 根据角色设置 body class
     document.body.className = user.role === 'admin' ? 'role-admin' : 'role-viewer';
+
+    // 恢复用户上次保存的侧边栏偏好
+    this.restoreNavState();
 };
 
 // 桌面端导航栏箭头滚动
@@ -132,6 +203,12 @@ App.ui.switchView = function(viewId) {
 
     // 滚动到顶部
     window.scrollTo(0, 0);
+
+    // 移动端：页面跳转后自动折叠侧边导航栏
+    // 此逻辑优先级最高 — 即使 localStorage 中保存了「展开」偏好，跳转后仍强制折叠
+    if (this.isMobile()) {
+        this.collapseNav();
+    }
 };
 
 // ============================================================

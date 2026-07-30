@@ -1279,6 +1279,7 @@ body.role-admin .role-badge { background: var(--c-champagne); color: #fff; }
     }
     .nav-list.open {
         display: flex;
+        pointer-events: auto;
         max-height: calc(100vh - 48px);
         overflow-y: auto;
         animation: navSlideDown 0.25s ease;

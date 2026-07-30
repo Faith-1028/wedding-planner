@@ -17,8 +17,8 @@ window.App = window.App || {};
 
 App.config = {
     // ===== Supabase 配置 =====
-    SUPABASE_URL: '',        // 例: 'https://xxxxx.supabase.co'
-    SUPABASE_ANON_KEY: '',   // 例: 'eyJhbGciOiJIUzI1NiIsInR5cCI6...'
+    SUPABASE_URL: 'https://cpdaenspyimjvogxcjpw.supabase.co',
+    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwZGFlbnNweWltanZvZ3hjanB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MTI0MzMsImV4cCI6MjEwMDk4ODQzM30._0yFB83QNB18N16WnWQNyI-i6tZz9Ck5csPT3S8d64Y',
 
     // ===== 初始管理员 =====
     ADMIN_USERNAME: 'wedding_admin',

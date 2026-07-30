@@ -111,35 +111,38 @@ function showFirstLoginWarning() {
 }
 
 // ============================================================
-// 启动主应用
-// ============================================================
-function startApp() {
-    // 隐藏登录界面
-    document.getElementById('loginScreen').style.display = 'none';
-    // 显示主应用
-    document.getElementById('mainApp').style.display = 'block';
+    // 启动主应用
+    // ============================================================
+    async function startApp() {
+        // 隐藏登录界面
+        document.getElementById('loginScreen').style.display = 'none';
+        // 显示主应用
+        document.getElementById('mainApp').style.display = 'block';
 
-    // 初始化导航
-    App.ui.initNav();
+        // 初始化导航
+        App.ui.initNav();
 
-    // 初始化所有模块
-    Object.keys(App.modules).forEach(id => {
-        if (typeof App.modules[id].init === 'function') {
-            try { App.modules[id].init(); } catch(e) { console.error(`[${id}] init error:`, e); }
-        }
-    });
+        // 初始化所有模块
+        Object.keys(App.modules).forEach(id => {
+            if (typeof App.modules[id].init === 'function') {
+                try { App.modules[id].init(); } catch(e) { console.error(`[${id}] init error:`, e); }
+            }
+        });
 
-    // 启动实时同步
-    App.realtime.init();
+        // 加载动态下拉选项
+        await App.config.loadDynamicOptions();
 
-    // 显示首页
-    App.ui.switchView('dashboard');
+        // 启动实时同步
+        App.realtime.init();
 
-    // 重置登录表单
-    const loginBtn = document.getElementById('loginBtn');
-    loginBtn.disabled = false;
-    loginBtn.textContent = '登 录';
-}
+        // 显示首页
+        App.ui.switchView('dashboard');
+
+        // 重置登录表单
+        const loginBtn = document.getElementById('loginBtn');
+        loginBtn.disabled = false;
+        loginBtn.textContent = '登 录';
+    }
 
 function showLogin() {
     document.getElementById('loginScreen').style.display = 'flex';

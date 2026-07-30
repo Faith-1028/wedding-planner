@@ -442,6 +442,8 @@ body.role-admin .role-badge { background: var(--c-champagne); color: #fff; }
     background: none;
     border: none;
     cursor: pointer;
+    position: relative;
+    z-index: 220;
 }
 .nav-toggle span {
     width: 22px;
@@ -1224,28 +1226,74 @@ body.role-admin .role-badge { background: var(--c-champagne); color: #fff; }
 .empty-state-text { font-size: 14px; }
 
 /* ============================================================
-   响应式 - 平板
+   响应式 - 平板 / 手机
    ============================================================ */
 @media (max-width: 768px) {
     .nav-toggle { display: flex; }
     .nav-arrow { display: none !important; }
+
+    /* 极简移动端顶栏 */
+    .nav-title,
+    .user-name,
+    .role-badge { display: none !important; }
+    .nav-list-wrapper {
+        flex: 0 0 0;
+        width: 0;
+        overflow: visible;
+        pointer-events: none;
+    }
+
+    .nav-rings { font-size: 20px; }
+    .top-nav {
+        padding: 0 12px;
+        gap: 8px;
+        height: 48px;
+    }
+    .nav-brand { gap: 0; }
+    .nav-toggle { padding: 6px; pointer-events: auto; }
+    .btn-logout {
+        padding: 5px 12px;
+        font-size: 13px;
+        border-radius: var(--radius-full);
+        background: var(--c-cream);
+        color: var(--c-champagne-dark);
+        border: 1px solid var(--c-border-light);
+    }
+    .btn-logout:hover { background: var(--c-champagne-light); color: #fff; }
+
+    /* 移动端菜单：关闭时 display:none 彻底移除，防止拦截点击 */
     .nav-list {
         position: fixed;
-        top: var(--nav-height);
+        top: 48px;
         left: 0;
         right: 0;
         flex-direction: column;
+        align-items: stretch;
         background: var(--bg-card);
         padding: 8px;
+        gap: 0;
         box-shadow: var(--shadow-md);
         border-bottom: 1px solid var(--c-border-light);
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
+        z-index: 210;
+        display: none;
     }
-    .nav-list.open { max-height: 500px; overflow-y: auto; }
-    .nav-link { padding: 10px 14px; width: 100%; }
-    .nav-user .user-name { display: none; }
+    .nav-list.open {
+        display: flex;
+        max-height: calc(100vh - 48px);
+        overflow-y: auto;
+        animation: navSlideDown 0.25s ease;
+    }
+    @keyframes navSlideDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .nav-link {
+        padding: 12px 16px;
+        width: 100%;
+        font-size: 15px;
+        border-radius: var(--radius-sm);
+    }
+    .nav-link.active { margin: 0 -8px; }
 
     .content { padding: 16px 12px 60px; }
     .view-title { font-size: 18px; }
@@ -1311,7 +1359,7 @@ body.role-admin .role-badge { background: var(--c-champagne); color: #fff; }
    全局公告板块
    ============================================================ */
 .announcement-board {
-    margin-top: 4px;
+    margin-top: 12px;
     margin-bottom: 20px;
 }
 .announcement-item {

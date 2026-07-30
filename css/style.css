@@ -333,8 +333,7 @@ body.role-viewer .view-hint { display: none !important; }
     gap: 12px;
     height: var(--nav-height);
     padding: 0 20px;
-    background: rgba(255, 254, 251, 0.92);
-    backdrop-filter: blur(12px);
+    background: var(--bg-card);
     border-bottom: 1px solid var(--c-border-light);
     box-shadow: var(--shadow-sm);
 }
@@ -1312,6 +1311,7 @@ body.role-admin .role-badge { background: var(--c-champagne); color: #fff; }
    全局公告板块
    ============================================================ */
 .announcement-board {
+    margin-top: 4px;
     margin-bottom: 20px;
 }
 .announcement-item {

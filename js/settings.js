@@ -171,13 +171,12 @@ App.modules.settings = {
             // 1. 立即更新内存中的值，让表单立刻反映
             App.config[meta.key] = values;
             // 2. 写入数据库（Supabase Realtime 会通知所有客户端同步）
-            if (App.isSupabaseConfigured) {
-                await App.db.update('app_settings', meta.dbKey, {
-                    value: values,
-                    updated_at: new Date().toISOString(),
-                    updated_by: App.auth.currentUser ? App.auth.currentUser.name : ''
-                });
-            }
+            //    app_settings 主键是 key（不是 id），必须用 upsert + onConflict:'key'
+            await App.db.upsert('app_settings', {
+                key: meta.dbKey,
+                value: values,
+                updated_by: App.auth.currentUser ? App.auth.currentUser.name : ''
+            }, 'key');
             // 3. 记录操作日志
             await App.tracker.log('编辑', '系统设置', `修改「${meta.title}」`);
             // 4. 重新渲染当前页面

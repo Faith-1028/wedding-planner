@@ -122,6 +122,35 @@ const LocalDB = {
         return rows[idx];
     },
 
+    async upsert(table, data, conflictKey) {
+        if (!this.store[table]) this.store[table] = [];
+        const rows = this.store[table];
+        const key = conflictKey || 'id';
+        const val = data[key];
+        const idx = val != null ? rows.findIndex(r => r[key] === val) : -1;
+        let row, eventType;
+        if (idx >= 0) {
+            const oldRow = { ...rows[idx] };
+            rows[idx] = { ...rows[idx], ...data, updated_at: new Date().toISOString() };
+            row = rows[idx];
+            eventType = 'UPDATE';
+            this._persist();
+            this._broadcast(table, 'UPDATE', row, oldRow);
+        } else {
+            row = {
+                id: data.id || (crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2)),
+                ...data,
+                created_at: data.created_at || new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            rows.push(row);
+            eventType = 'INSERT';
+            this._persist();
+            this._broadcast(table, 'INSERT', row);
+        }
+        return row;
+    },
+
     async delete(table, id) {
         const rows = this.store[table] || [];
         const idx = rows.findIndex(r => r.id === id);
@@ -195,6 +224,19 @@ App.db = {
             return (data && data[0]) || null;
         }
         return LocalDB.update(table, id, updates);
+    },
+
+    async upsert(table, data, conflictKey) {
+        if (App.isSupabaseConfigured) {
+            const options = conflictKey ? { onConflict: conflictKey } : undefined;
+            const { data: result, error } = await App.supabase
+                .from(table)
+                .upsert(data, options)
+                .select();
+            if (error) throw error;
+            return (result && result[0]) || null;
+        }
+        return LocalDB.upsert(table, data, conflictKey);
     },
 
     async delete(table, id) {

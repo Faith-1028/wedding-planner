@@ -41,7 +41,8 @@ const LocalDB = {
         // 初始化空表
         ['app_users', 'wedding_config', 'guests', 'timeline_tasks', 'games',
          'supplies', 'budget_items', 'operation_logs', 'notifications', 'reminders',
-         'staff_contacts', 'seating_tables', 'seating_assignments', 'memos', 'announcements', 'gifts'
+         'staff_contacts', 'seating_tables', 'seating_assignments', 'memos', 'announcements', 'gifts',
+         'vehicles', 'vehicle_passengers'
         ].forEach(t => {
             if (!this.store[t]) this.store[t] = [];
         });
@@ -408,7 +409,8 @@ App.realtime = {
         const tables = ['guests', 'timeline_tasks', 'games', 'supplies',
                         'budget_items', 'app_users', 'wedding_config', 'reminders',
                         'staff_contacts', 'seating_tables', 'seating_assignments',
-                        'memos', 'announcements', 'gifts', 'app_settings'];
+                        'memos', 'announcements', 'gifts', 'app_settings',
+                        'vehicles', 'vehicle_passengers'];
         tables.forEach(table => {
             const unsub = App.db.subscribe(table, (payload) => {
                 this.onDataChange(table, payload);
@@ -466,7 +468,9 @@ App.realtime = {
             'seating_tables': 'seating',
             'seating_assignments': 'seating',
             'memos': 'memos',
-            'gifts': 'gifts'
+            'gifts': 'gifts',
+            'vehicles': 'vehicles',
+            'vehicle_passengers': 'vehicles'
         };
         const moduleId = moduleMap[table];
 

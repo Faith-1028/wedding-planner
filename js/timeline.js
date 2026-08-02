@@ -371,6 +371,7 @@ App.modules.timeline = {
             text += '\n';
             if (t.person_in_charge) text += `   负责人: ${t.person_in_charge}\n`;
             if (t.location) text += `   地点: ${t.location}\n`;
+            if (t.props) text += `   道具: ${t.props}\n`;
             if (t.remarks) text += `   备注: ${t.remarks}\n`;
             text += `   状态: ${t.status}\n\n`;
         });

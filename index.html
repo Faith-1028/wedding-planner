@@ -232,6 +232,19 @@
             </div>
         </section>
 
+        <!-- ===== 接送车辆排班 ===== -->
+        <section id="view-vehicles" class="view">
+            <div class="view-header">
+                <h2 class="view-title">🚗 接送车辆排班管理</h2>
+                <div class="view-actions">
+                    <button class="btn btn-outline btn-sm" id="vehiclesCopyBtn">📋 导出排班表</button>
+                    <button class="btn btn-primary btn-sm admin-only" id="addVehicleBtn">+ 新增车辆</button>
+                </div>
+            </div>
+            <p class="view-hint admin-only">💡 提示：拖动车辆卡片可调整排序，点击「+ 添加」可从宾客/工作人员清单导入乘车人员</p>
+            <div id="vehiclesList" class="vehicles-list"></div>
+        </section>
+
         <!-- ===== 紧急备忘录 ===== -->
         <section id="view-memos" class="view">
             <div class="view-header">
@@ -322,6 +335,7 @@
 <script src="js/budget.js"></script>
 <script src="js/staff.js"></script>
 <script src="js/seating.js"></script>
+<script src="js/vehicles.js"></script>
 <script src="js/memos.js"></script>
 <script src="js/gifts.js"></script>
 <script src="js/users.js"></script>

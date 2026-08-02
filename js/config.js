@@ -35,6 +35,7 @@ App.config = {
         { id: 'budget',     name: '婚礼预算',     icon: '💰' },
         { id: 'staff',      name: '工作人员',     icon: '👷' },
         { id: 'seating',    name: '席位桌次',     icon: '🍽️' },
+        { id: 'vehicles',   name: '接送车辆',     icon: '🚗' },
         { id: 'memos',      name: '紧急备忘录',   icon: '📌' },
         { id: 'gifts',      name: '礼金记账',     icon: '🧧', adminOnly: true },
         { id: 'users',      name: '用户管理',     icon: '⚙️', adminOnly: true },

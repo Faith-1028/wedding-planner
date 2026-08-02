@@ -2023,3 +2023,62 @@ body.role-admin .role-badge { background: var(--c-champagne); color: #fff; }
         width: 100%;
     }
 }
+
+
+/* ============================================================
+   负责人多选 checkbox 组
+   ============================================================ */
+.person-checkbox-group {
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 6px;
+    background: var(--bg-page);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.person-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s ease;
+    user-select: none;
+}
+
+.person-checkbox-item:hover {
+    background: rgba(178, 140, 96, 0.08);
+}
+
+.person-checkbox-item.checked {
+    background: rgba(178, 140, 96, 0.14);
+}
+
+.person-checkbox-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-color);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.person-checkbox-label {
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+@media (max-width: 768px) {
+    .person-checkbox-group {
+        max-height: 220px;
+    }
+    .person-checkbox-item {
+        padding: 9px 10px;
+    }
+}
+

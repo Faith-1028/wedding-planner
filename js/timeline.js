@@ -67,7 +67,9 @@ App.modules.timeline = {
                         </div>
                     </div>
                     <div class="timeline-meta">
-                        ${t.person_in_charge ? `<span class="person-in-charge-link" data-person="${App.ui.attr(t.person_in_charge)}">👤 ${App.ui.escapeHtml(t.person_in_charge)}</span>` : ''}
+                        ${t.person_in_charge ? t.person_in_charge.split(',').map(n => n.trim()).filter(Boolean).map(n =>
+                            `<span class="person-in-charge-link" data-person="${App.ui.attr(n)}">👤 ${App.ui.escapeHtml(n)}</span>`
+                        ).join('') : ''}
                         ${t.location ? `<span>📍 ${App.ui.escapeHtml(t.location)}</span>` : ''}
                         ${t.remarks ? `<span>📝 ${App.ui.escapeHtml(t.remarks)}</span>` : ''}
                     </div>
@@ -169,15 +171,18 @@ App.modules.timeline = {
         const allStaff = [];
         this.data.forEach(t => {
             if (t.person_in_charge) {
-                // 从工作人员联络清单查找联系人信息
-                const contact = this.staffContacts.find(s => s.name === t.person_in_charge);
-                allStaff.push({
-                    name: t.person_in_charge,
-                    task: t.event,
-                    time: t.task_time || '',
-                    location: t.location || '',
-                    phone: contact ? (contact.phone || '') : '',
-                    role: contact ? (contact.role_desc || '') : ''
+                // 支持多负责人：逗号分隔 → 展开成多行
+                const persons = t.person_in_charge.split(',').map(s => s.trim()).filter(Boolean);
+                persons.forEach(pName => {
+                    const contact = this.staffContacts.find(s => s.name === pName);
+                    allStaff.push({
+                        name: pName,
+                        task: t.event,
+                        time: t.task_time || '',
+                        location: t.location || '',
+                        phone: contact ? (contact.phone || '') : '',
+                        role: contact ? (contact.role_desc || '') : ''
+                    });
                 });
             }
         });
@@ -209,18 +214,26 @@ App.modules.timeline = {
         const isEdit = !!task;
         const t = task || { task_time: '', event: '', person_in_charge: '', location: '', remarks: '', is_key: false };
 
-        // 生成负责人下拉选项（从工作人员联络清单获取）
-        const staffOptions = this.staffContacts.length > 0
-            ? this.staffContacts.map(s => `<option value="${App.ui.attr(s.name)}" ${t.person_in_charge===s.name?'selected':''}>${App.ui.escapeHtml(s.name)}${s.role_desc?' - '+s.role_desc:''}${s.category?' ('+s.category+')':''}</option>`).join('')
-            : '';
+        // 解析已有负责人（逗号分隔 → 数组）
+        const selectedPersons = t.person_in_charge
+            ? t.person_in_charge.split(',').map(s => s.trim()).filter(Boolean)
+            : [];
+        // 不在工作人员清单中的负责人（手动输入的）
+        const customPersons = selectedPersons.filter(n => !this.staffContacts.find(s => s.name === n));
+
+        // 生成负责人多选 checkbox 列表
         const personField = this.staffContacts.length > 0
-            ? `<select id="taskPerson" data-staff-mode="select">
-                 <option value="">-- 选择负责人 --</option>
-                 ${staffOptions}
-                 <option value="__custom__">+ 手动输入其他人员</option>
-               </select>
-               <input type="text" id="taskPersonCustom" style="display:none;margin-top:8px;" placeholder="手动输入负责人姓名">`
-            : `<input type="text" id="taskPerson" value="${App.ui.attr(t.person_in_charge)}" placeholder="负责人姓名">`;
+            ? `<div class="person-checkbox-group" id="taskPersonGroup">
+                 ${this.staffContacts.map(s => {
+                     const checked = selectedPersons.includes(s.name) ? 'checked' : '';
+                     return `<label class="person-checkbox-item ${checked?'checked':''}">
+                         <input type="checkbox" class="task-person-cb" value="${App.ui.attr(s.name)}" ${checked}>
+                         <span class="person-checkbox-label">${App.ui.escapeHtml(s.name)}${s.role_desc?' · '+s.role_desc:''}${s.category?' ('+s.category+')':''}</span>
+                     </label>`;
+                 }).join('')}
+               </div>
+               <input type="text" id="taskPersonCustom" class="form-input" style="margin-top:8px;" placeholder="补充其他负责人（逗号分隔多人）" value="${App.ui.attr(customPersons.join(', '))}">`
+            : `<input type="text" id="taskPerson" class="form-input" value="${App.ui.attr(t.person_in_charge)}" placeholder="负责人姓名（逗号分隔多人）">`;
 
         const bodyHtml = `
             <div class="form-row">
@@ -260,40 +273,33 @@ App.modules.timeline = {
             <button class="btn btn-primary" id="saveTaskBtn">${isEdit ? '保存' : '添加'}</button>
         `;
         App.ui.showModal(isEdit ? '编辑流程' : '新增流程', bodyHtml, footerHtml, () => {
-            // 处理下拉切换到手动输入
-            const personSelect = document.getElementById('taskPerson');
-            const personCustom = document.getElementById('taskPersonCustom');
-            if (personSelect && personSelect.dataset.staffMode === 'select') {
-                personSelect.addEventListener('change', () => {
-                    if (personSelect.value === '__custom__') {
-                        personCustom.style.display = 'block';
-                        personCustom.focus();
-                    } else {
-                        personCustom.style.display = 'none';
-                    }
+            // checkbox 点击时切换高亮样式
+            const personGroup = document.getElementById('taskPersonGroup');
+            if (personGroup) {
+                personGroup.querySelectorAll('.task-person-cb').forEach(cb => {
+                    cb.addEventListener('change', () => {
+                        cb.closest('.person-checkbox-item').classList.toggle('checked', cb.checked);
+                    });
                 });
-                // 如果当前负责人不在列表中，预填手动输入
-                if (t.person_in_charge && !this.staffContacts.find(s => s.name === t.person_in_charge)) {
-                    personSelect.value = '__custom__';
-                    personCustom.style.display = 'block';
-                    personCustom.value = t.person_in_charge;
-                }
             }
 
             document.getElementById('saveTaskBtn').onclick = async () => {
                 const event = document.getElementById('taskEvent').value.trim();
                 if (!event) { App.ui.toast('请输入事件名称', 'error'); return; }
 
-                // 获取负责人值
+                // 获取负责人值（支持多选）
                 let personInCharge = '';
-                if (personSelect && personSelect.dataset.staffMode === 'select') {
-                    if (personSelect.value === '__custom__') {
-                        personInCharge = personCustom.value.trim();
-                    } else {
-                        personInCharge = personSelect.value;
-                    }
-                } else if (personSelect) {
-                    personInCharge = personSelect.value.trim();
+                if (this.staffContacts.length > 0) {
+                    const checked = Array.from(document.querySelectorAll('.task-person-cb:checked')).map(cb => cb.value);
+                    const customEl = document.getElementById('taskPersonCustom');
+                    const custom = customEl ? customEl.value.trim() : '';
+                    const customArr = custom ? custom.split(',').map(s => s.trim()).filter(Boolean) : [];
+                    // 合并去重
+                    const all = [...new Set([...checked, ...customArr])];
+                    personInCharge = all.join(', ');
+                } else {
+                    const input = document.getElementById('taskPerson');
+                    if (input) personInCharge = input.value.trim();
                 }
 
                 const payload = {

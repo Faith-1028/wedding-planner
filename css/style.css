@@ -2082,3 +2082,560 @@ body.role-admin .role-badge { background: var(--c-champagne); color: #fff; }
     }
 }
 
+/* ============================================================
+   接送车辆排班管理模块样式
+   ============================================================ */
+
+.vehicles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+/* 汇总统计条 */
+.vehicles-summary {
+    display: flex;
+    gap: 24px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 4px;
+}
+
+.vehicle-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.vehicle-stat-num {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--c-champagne-dark);
+}
+
+.vehicle-stat-label {
+    font-size: 12px;
+    color: var(--c-text-muted);
+}
+
+/* 车辆卡片 */
+.vehicle-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: box-shadow var(--transition), transform var(--transition);
+    border: 1px solid var(--c-border-light);
+}
+
+.vehicle-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.vehicle-card.dragging {
+    opacity: 0.5;
+    transform: scale(0.98);
+}
+
+.vehicle-card.drag-over {
+    border-top: 3px solid var(--c-champagne);
+}
+
+.vehicle-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--c-cream), var(--bg-section));
+    border-bottom: 1px solid var(--c-border-light);
+}
+
+.vehicle-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vehicle-number {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--c-text);
+}
+
+.vehicle-badge-wedding {
+    display: inline-block;
+    padding: 2px 10px;
+    background: var(--c-danger);
+    color: var(--c-text-inverse);
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+}
+
+.vehicle-passenger-count {
+    font-size: 13px;
+    color: var(--c-champagne-dark);
+    font-weight: 600;
+    background: var(--c-cream);
+    padding: 3px 12px;
+    border-radius: var(--radius-full);
+}
+
+.vehicle-card-body {
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vehicle-driver {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.vehicle-driver .info-row,
+.vehicle-card-body .info-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.vehicle-driver .info-label {
+    color: var(--c-text-muted);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.vehicle-phone {
+    color: var(--c-champagne-dark);
+    text-decoration: none;
+}
+
+.vehicle-phone:hover {
+    text-decoration: underline;
+}
+
+.vehicle-route {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 14px;
+}
+
+.route-point {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.route-icon-from,
+.route-icon-to {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--c-text-inverse);
+}
+
+.route-icon-from {
+    background: var(--c-success);
+}
+
+.route-icon-to {
+    background: var(--c-danger);
+}
+
+.route-arrow {
+    color: var(--c-text-muted);
+    font-size: 16px;
+}
+
+.vehicle-time-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.vehicle-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.time-tag {
+    background: var(--c-champagne-light);
+    color: var(--c-champagne-dark);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: var(--radius-xs);
+    font-weight: 600;
+}
+
+.vehicle-details {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.vehicle-detail-tag {
+    font-size: 12px;
+    padding: 3px 10px;
+    background: var(--bg-section);
+    border-radius: var(--radius-full);
+    color: var(--c-text-light);
+}
+
+.vehicle-detail-warn {
+    background: var(--c-warning-bg);
+    color: var(--c-warning);
+    font-weight: 500;
+}
+
+.vehicle-remarks {
+    font-size: 13px;
+    color: var(--c-text-light);
+    padding-top: 4px;
+    border-top: 1px dashed var(--c-border-light);
+}
+
+/* 乘车人员区域 */
+.vehicle-passengers-section {
+    padding: 12px 18px;
+    background: var(--bg-section);
+    border-top: 1px solid var(--c-border-light);
+}
+
+.vehicle-passengers-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.passengers-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--c-text-light);
+}
+
+.vehicle-passengers-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 32px;
+}
+
+.vehicle-no-passengers {
+    color: var(--c-text-muted);
+    font-size: 13px;
+    padding: 4px 0;
+}
+
+.passenger-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    transition: all var(--transition-fast);
+}
+
+.passenger-chip-sortable {
+    cursor: grab;
+}
+
+.passenger-chip-sortable:active {
+    cursor: grabbing;
+}
+
+.passenger-chip.dragging {
+    opacity: 0.5;
+}
+
+.passenger-chip.drag-over {
+    border-left: 3px solid var(--c-champagne);
+}
+
+.passenger-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--c-champagne-light);
+    color: var(--c-champagne-dark);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.passenger-name {
+    color: var(--c-text);
+    font-weight: 500;
+}
+
+.passenger-src {
+    font-size: 10px;
+    padding: 1px 6px;
+    background: var(--c-info-bg);
+    color: var(--c-info);
+    border-radius: var(--radius-xs);
+}
+
+.passenger-src-staff {
+    background: var(--c-success-bg);
+    color: var(--c-success);
+}
+
+.passenger-chip .remove-btn {
+    background: none;
+    border: none;
+    color: var(--c-text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 2px;
+    transition: color var(--transition-fast);
+}
+
+.passenger-chip .remove-btn:hover {
+    color: var(--c-danger);
+}
+
+.vehicle-card-actions {
+    display: flex;
+    gap: 8px;
+    padding: 10px 18px;
+    border-top: 1px solid var(--c-border-light);
+    background: var(--bg-card);
+}
+
+/* 乘车人员添加弹窗 */
+.passenger-add-section {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.passenger-add-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--c-border-light);
+}
+
+.passenger-tab-btn {
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    font-size: 14px;
+    color: var(--c-text-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.passenger-tab-btn.active {
+    color: var(--c-champagne-dark);
+    border-bottom-color: var(--c-champagne);
+    font-weight: 600;
+}
+
+.passenger-tab-btn:hover {
+    color: var(--c-text);
+}
+
+.passenger-tab-content {
+    padding-bottom: 8px;
+}
+
+.import-person-list {
+    max-height: 280px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.import-person-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    font-size: 14px;
+}
+
+.import-person-item:hover {
+    background: var(--bg-card-hover);
+}
+
+.import-person-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--c-champagne);
+}
+
+/* 车辆预览弹窗 */
+.vehicle-preview-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.vehicle-preview-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, var(--c-cream), var(--bg-section));
+    border-bottom: 2px solid var(--c-champagne-light);
+    text-align: center;
+}
+
+.vehicle-preview-header h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--c-text);
+}
+
+.vehicle-preview-body {
+    padding: 16px 20px;
+}
+
+.preview-section {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--c-border-light);
+}
+
+.preview-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.preview-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--c-champagne-dark);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--c-border-light);
+}
+
+.preview-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 14px;
+}
+
+.preview-row span {
+    color: var(--c-text-muted);
+    font-size: 13px;
+}
+
+.preview-row strong {
+    color: var(--c-text);
+}
+
+.preview-passenger-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.preview-passenger-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+}
+
+.preview-passenger-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--c-champagne-light);
+    color: var(--c-champagne-dark);
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.preview-passenger-name {
+    font-weight: 500;
+    color: var(--c-text);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .vehicles-summary {
+        gap: 16px;
+        padding: 12px 16px;
+    }
+
+    .vehicle-stat-num {
+        font-size: 20px;
+    }
+
+    .vehicle-card-header {
+        padding: 12px 14px;
+    }
+
+    .vehicle-card-body,
+    .vehicle-passengers-section,
+    .vehicle-card-actions {
+        padding: 10px 14px;
+    }
+
+    .vehicle-driver {
+        gap: 12px;
+    }
+
+    .vehicle-time-row {
+        gap: 12px;
+    }
+
+    .passenger-add-tabs {
+        flex-wrap: wrap;
+    }
+
+    .passenger-tab-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .import-person-list {
+        max-height: 200px;
+    }
+
+    .preview-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+}
+

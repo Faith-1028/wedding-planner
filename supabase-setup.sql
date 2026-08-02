@@ -246,6 +246,42 @@ CREATE TABLE IF NOT EXISTS gifts (
 );
 
 -- ============================================================
+-- 17. 接送车辆排班表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS vehicles (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    vehicle_number TEXT NOT NULL DEFAULT '',
+    driver_name TEXT DEFAULT '',
+    driver_phone TEXT DEFAULT '',
+    departure TEXT DEFAULT '',
+    destination TEXT DEFAULT '',
+    departure_time TEXT DEFAULT '',
+    arrival_time TEXT DEFAULT '',
+    vehicle_type TEXT DEFAULT '',
+    is_wedding_car BOOLEAN DEFAULT FALSE,
+    luggage_space TEXT DEFAULT '',
+    special_needs TEXT DEFAULT '',
+    remarks TEXT DEFAULT '',
+    sort_order BIGINT DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
+-- 18. 车内乘车人员表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS vehicle_passengers (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    vehicle_id UUID NOT NULL,
+    passenger_name TEXT NOT NULL DEFAULT '',
+    passenger_type TEXT DEFAULT 'custom',
+    source_id TEXT DEFAULT '',
+    seat_order BIGINT DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
 -- 行级安全策略 (RLS)
 -- 注意：本应用使用自定义认证体系（app_users 表），
 -- 权限控制在前端应用层实现。RLS 设为允许 anon key 全部访问。
@@ -269,6 +305,8 @@ ALTER TABLE seating_assignments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE memos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE gifts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE vehicles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE vehicle_passengers ENABLE ROW LEVEL SECURITY;
 
 -- 创建允许全部访问的策略
 CREATE POLICY "allow_all_app_users" ON app_users FOR ALL USING (true) WITH CHECK (true);
@@ -287,6 +325,8 @@ CREATE POLICY "allow_all_seating_assignments" ON seating_assignments FOR ALL USI
 CREATE POLICY "allow_all_memos" ON memos FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_announcements" ON announcements FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_gifts" ON gifts FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "allow_all_vehicles" ON vehicles FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "allow_all_vehicle_passengers" ON vehicle_passengers FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================================
 -- 启用实时订阅 (Realtime)
@@ -307,6 +347,8 @@ ALTER PUBLICATION supabase_realtime ADD TABLE seating_assignments;
 ALTER PUBLICATION supabase_realtime ADD TABLE memos;
 ALTER PUBLICATION supabase_realtime ADD TABLE announcements;
 ALTER PUBLICATION supabase_realtime ADD TABLE gifts;
+ALTER PUBLICATION supabase_realtime ADD TABLE vehicles;
+ALTER PUBLICATION supabase_realtime ADD TABLE vehicle_passengers;
 
 -- ============================================================
 -- 创建索引
@@ -322,6 +364,8 @@ CREATE INDEX IF NOT EXISTS idx_seating_zone ON seating_tables(zone);
 CREATE INDEX IF NOT EXISTS idx_seating_assign_table ON seating_assignments(table_id);
 CREATE INDEX IF NOT EXISTS idx_memos_tag ON memos(tag);
 CREATE INDEX IF NOT EXISTS idx_gifts_group ON gifts(group_type);
+CREATE INDEX IF NOT EXISTS idx_vehicles_sort ON vehicles(sort_order);
+CREATE INDEX IF NOT EXISTS idx_vehicle_passengers_vehicle ON vehicle_passengers(vehicle_id);
 
 -- ============================================================
 -- 完成！

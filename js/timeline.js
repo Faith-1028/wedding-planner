@@ -71,6 +71,7 @@ App.modules.timeline = {
                             `<span class="person-in-charge-link" data-person="${App.ui.attr(n)}">👤 ${App.ui.escapeHtml(n)}</span>`
                         ).join('') : ''}
                         ${t.location ? `<span>📍 ${App.ui.escapeHtml(t.location)}</span>` : ''}
+                        ${t.props ? `<span title="道具">🎁 ${App.ui.escapeHtml(t.props)}</span>` : ''}
                         ${t.remarks ? `<span>📝 ${App.ui.escapeHtml(t.remarks)}</span>` : ''}
                     </div>
                     <div class="status-toggle admin-only" style="margin-top:6px;">
@@ -212,7 +213,7 @@ App.modules.timeline = {
 
     showForm: function(task) {
         const isEdit = !!task;
-        const t = task || { task_time: '', event: '', person_in_charge: '', location: '', remarks: '', is_key: false };
+        const t = task || { task_time: '', event: '', person_in_charge: '', location: '', remarks: '', props: '', is_key: false };
 
         // 解析已有负责人（逗号分隔 → 数组）
         const selectedPersons = t.person_in_charge
@@ -255,6 +256,12 @@ App.modules.timeline = {
                 <div class="form-group">
                     <label>地点</label>
                     <input type="text" id="taskLocation" value="${App.ui.attr(t.location)}" placeholder="如 新娘家/酒店">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex:1;">
+                    <label>道具</label>
+                    <input type="text" id="taskProps" value="${App.ui.attr(t.props || '')}" placeholder="如 手捧花、对戒、誓言卡">
                 </div>
             </div>
             <div class="form-group">
@@ -307,6 +314,7 @@ App.modules.timeline = {
                     event,
                     person_in_charge: personInCharge,
                     location: document.getElementById('taskLocation').value.trim(),
+                    props: document.getElementById('taskProps').value.trim(),
                     remarks: document.getElementById('taskRemarks').value.trim(),
                     is_key: document.getElementById('taskIsKey').checked
                 };

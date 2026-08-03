@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>备婚管家 · APP打包部署与协同方案</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #F9F4E8;
+  color: #3D2B1F;
+  line-height: 1.8;
+  padding: 40px 20px;
+}
+.container { max-width: 900px; margin: 0 auto; }
+h1 { color: #C49A6C; font-size: 28px; margin-bottom: 8px; }
+h2 { color: #8B6F47; font-size: 22px; margin: 32px 0 12px; border-bottom: 2px solid #E8D5C4; padding-bottom: 8px; }
+h3 { color: #6B4E31; font-size: 17px; margin: 20px 0 8px; }
+p { margin-bottom: 12px; }
+ul, ol { margin: 8px 0 16px 24px; }
+li { margin-bottom: 6px; }
+code {
+  background: #F0E6D6; padding: 2px 6px; border-radius: 4px;
+  font-family: 'Courier New', monospace; font-size: 14px; color: #8B4513;
+}
+pre {
+  background: #2D2D2D; color: #F8F8F2; padding: 16px; border-radius: 8px;
+  overflow-x: auto; margin: 12px 0; font-size: 13px; line-height: 1.6;
+}
+pre code { background: none; color: inherit; padding: 0; }
+.card {
+  background: #fff; border-radius: 12px; padding: 20px 24px; margin: 16px 0;
+  box-shadow: 0 2px 8px rgba(139,111,71,0.1); border: 1px solid #E8D5C4;
+}
+.card-highlight { border-left: 4px solid #C49A6C; }
+.badge {
+  display: inline-block; padding: 2px 10px; border-radius: 12px;
+  font-size: 12px; font-weight: 600; margin-right: 6px;
+}
+.badge-green { background: #D4EDDA; color: #155724; }
+.badge-blue { background: #D1ECF1; color: #0C5460; }
+.badge-orange { background: #FFF3CD; color: #856404; }
+.badge-purple { background: #E2D9F3; color: #6F42C1; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th, td { border: 1px solid #E8D5C4; padding: 10px 14px; text-align: left; font-size: 14px; }
+th { background: #F0E6D6; color: #6B4E31; }
+.tip { background: #E8F5E9; border-left: 4px solid #4CAF50; padding: 12px 16px; border-radius: 6px; margin: 12px 0; }
+.warn { background: #FFF3E0; border-left: 4px solid #FF9800; padding: 12px 16px; border-radius: 6px; margin: 12px 0; }
+.step { counter-reset: step; }
+.step-item { counter-increment: step; margin: 12px 0 12px 48px; position: relative; }
+.step-item::before {
+  content: counter(step); position: absolute; left: -48px; top: 0;
+  width: 32px; height: 32px; background: #C49A6C; color: #fff;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+}
+.flow-arrow { text-align: center; font-size: 24px; color: #C49A6C; margin: 8px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>📱 备婚管家 · APP 打包部署与协同方案</h1>
+<p style="color:#8B6F47;">婚礼备婚协同管理平台 — 支持电脑端、安卓手机端下载安装，多人实时协同</p>
+
+<!-- ==================== 方案总览 ==================== -->
+<h2>🎯 方案总览</h2>
+
+<div class="card card-highlight">
+<table>
+<tr><th>方案</th><th>适用平台</th><th>体验</th><th>分发方式</th><th>状态</th></tr>
+<tr>
+  <td><strong>PWA 渐进式应用</strong></td>
+  <td>电脑 + 安卓 + iOS</td>
+  <td>类原生 App 体验</td>
+  <td>访问网址 → 点击安装</td>
+  <td><span class="badge badge-green">✅ 已完成</span></td>
+</tr>
+<tr>
+  <td><strong>Electron 桌面客户端</strong></td>
+  <td>Windows / Mac / Linux</td>
+  <td>独立 .exe 程序</td>
+  <td>下载安装包</td>
+  <td><span class="badge badge-blue">✅ 已配置</span></td>
+</tr>
+<tr>
+  <td><strong>Android APK</strong></td>
+  <td>安卓手机</td>
+  <td>原生 App 安装</td>
+  <td>下载 .apk 安装</td>
+  <td><span class="badge badge-orange">📋 已提供方案</span></td>
+</tr>
+</table>
+</div>
+
+<!-- ==================== PWA 方案 ==================== -->
+<h2>方案一：PWA 渐进式应用（推荐 · 已部署）</h2>
+
+<p>PWA 是目前最轻量、最通用的打包方式。用户无需下载安装包，直接访问网址即可「安装」到桌面/手机主屏，体验接近原生 App。</p>
+
+<h3>已实现的 PWA 特性</h3>
+<div class="card">
+<ul>
+  <li><strong>📦 可安装</strong>：添加到桌面/主屏后显示独立图标，全屏启动，无浏览器地址栏</li>
+  <li><strong>🔄 离线缓存</strong>：Service Worker 缓存所有静态资源，断网也能打开应用</li>
+  <li><strong>📱 自适应</strong>：桌面/平板/手机自动适配布局</li>
+  <li><strong>🎨 原生体验</strong>：自定义启动画面、主题色、应用图标</li>
+  <li><strong>🔔 快捷入口</strong>：桌面右键菜单可直达首页/宾客/流程等模块</li>
+</ul>
+</div>
+
+<h3>电脑端安装方式（Chrome / Edge）</h3>
+<div class="step">
+  <div class="step-item">打开浏览器访问 <code>https://faith-1028.github.io/wedding-planner/</code></div>
+  <div class="step-item">地址栏右侧会出现 <strong>安装图标</strong>（⊕），或在菜单中选择「安装此应用」</div>
+  <div class="step-item">点击安装，桌面会生成「备婚管家」快捷方式</div>
+  <div class="step-item">双击图标即可像普通软件一样启动，无需再打开浏览器</div>
+</div>
+
+<h3>安卓手机安装方式</h3>
+<div class="step">
+  <div class="step-item">用 Chrome 浏览器打开网址 <code>https://faith-1028.github.io/wedding-planner/</code></div>
+  <div class="step-item">点击浏览器菜单（⋮）→ 选择「添加到主屏幕」</div>
+  <div class="step-item">确认安装，桌面会生成 App 图标</div>
+  <div class="step-item">点击图标直接启动，全屏沉浸式体验</div>
+</div>
+
+<div class="tip">
+  <strong>💡 微信内打开</strong>：微信内置浏览器不支持 PWA 安装，需点击右上角「⋯」→「在浏览器打开」，然后用 Chrome 安装。
+</div>
+
+<!-- ==================== Electron 方案 ==================== -->
+<h2>方案二：Electron 桌面客户端（.exe 安装包）</h2>
+
+<p>Electron 将网页应用打包成原生桌面程序，用户可以下载 <code>.exe</code> 安装包，像普通软件一样安装使用。</p>
+
+<h3>项目结构</h3>
+<pre><code>wedding-planner/
+├── index.html          # 网页应用（已有）
+├── css/                # 样式文件（已有）
+├── js/                 # 脚本文件（已有）
+├── icons/              # 应用图标（已生成）
+├── manifest.json       # PWA 配置（已生成）
+├── sw.js               # Service Worker（已生成）
+└── desktop/            # ← Electron 桌面客户端
+    ├── package.json    # 依赖与构建配置
+    ├── main.js         # 主进程（窗口管理、菜单）
+    ├── preload.js      # 预加载脚本
+    └── dist/           # 构建输出（.exe 安装包）
+</code></pre>
+
+<h3>构建步骤</h3>
+<div class="step">
+  <div class="step-item">确保已安装 <strong>Node.js 18+</strong>（下载地址：nodejs.org）</div>
+  <div class="step-item">打开命令行，进入 desktop 目录：
+    <pre><code>cd desktop
+npm install</code></pre>
+    等待依赖安装完成（首次约 3-5 分钟）
+  </div>
+  <div class="step-item">开发调试模式运行：
+    <pre><code>npm start</code></pre>
+    会打开桌面窗口，可直接预览应用
+  </div>
+  <div class="step-item">打包为 .exe 安装程序：
+    <pre><code># 安装版（推荐，带安装向导）
+npm run build:nsis
+
+# 便携版（免安装，单文件 exe）
+npm run build:portable</code></pre>
+  </div>
+  <div class="step-item">构建完成后，在 <code>desktop/dist/</code> 目录下找到 <code>.exe</code> 文件，即可分发给其他人员安装</div>
+</div>
+
+<div class="card">
+<h3>打包产物说明</h3>
+<table>
+<tr><th>文件</th><th>类型</th><th>大小（预估）</th><th>说明</th></tr>
+<tr><td>备婚管家-Setup-1.0.0.exe</td><td>NSIS 安装包</td><td>~85MB</td><td>双击安装，可选安装路径，创建快捷方式</td></tr>
+<tr><td>备婚管家-便携版-1.0.0.exe</td><td>便携版</td><td>~85MB</td><td>免安装，双击直接运行</td></tr>
+</table>
+</div>
+
+<div class="warn">
+  <strong>⚠️ 注意</strong>：Electron 打包需要 Node.js 环境，需在本地电脑执行。构建过程会下载 Electron 运行时（约 80MB），首次构建稍慢。
+</div>
+
+<!-- ==================== Android APK 方案 ==================== -->
+<h2>方案三：Android APK 安装包</h2>
+
+<p>将网页应用打包为 Android 原生 <code>.apk</code> 文件，用户下载后直接安装到手机。</p>
+
+<h3>推荐方案：Capacitor（Ionic）</h3>
+<p>Capacitor 是 Ionic 团队开发的跨平台容器，可以将任意 Web 应用包装为原生 Android/iOS 应用。</p>
+
+<h3>操作步骤</h3>
+<div class="step">
+  <div class="step-item">安装依赖（需 Node.js）：
+    <pre><code>npm install @capacitor/core @capacitor/cli
+npm install @capacitor/android
+npx cap init 备婚管家 com.wedding.planner</code></pre>
+  </div>
+  <div class="step-item">配置 <code>capacitor.config.json</code>：
+    <pre><code>{
+  "appId": "com.wedding.planner",
+  "appName": "备婚管家",
+  "webDir": ".",
+  "server": {
+    "url": "https://faith-1028.github.io/wedding-planner/"
+  }
+}</code></pre>
+  </div>
+  <div class="step-item">生成 Android 工程：
+    <pre><code>npx cap add android
+npx cap sync</code></pre>
+  </div>
+  <div class="step-item">用 <strong>Android Studio</strong> 打开 <code>android/</code> 目录</div>
+  <div class="step-item">在 Android Studio 中点击 Build → Build APK，生成 <code>.apk</code> 文件</div>
+  <div class="step-item">将 <code>.apk</code> 发给伴郎/亲友，手机安装即可</div>
+</div>
+
+<h3>替代方案：PWABuilder（最简单）</h3>
+<div class="card">
+<ol>
+  <li>访问 <code>https://www.pwabuilder.com/</code></li>
+  <li>输入网址 <code>https://faith-1028.github.io/wedding-planner/</code></li>
+  <li>点击「Build My PWA」→ 选择 Android</li>
+  <li>下载生成的 <code>.apk</code> 安装包</li>
+</ol>
+<p>PWABuilder 会自动读取 PWA manifest 和 service worker，生成完整的 Android 安装包，无需配置开发环境。</p>
+</div>
+
+<!-- ==================== 多人协同原理 ==================== -->
+<h2>🔄 多人协同与数据共享原理</h2>
+
+<p>无论使用哪种打包方式（PWA / Electron / APK），<strong>多人协同机制完全一致</strong>，因为所有数据都存储在 Supabase 云端数据库。</p>
+
+<div class="card card-highlight">
+<h3>协同架构图</h3>
+<pre><code>                    ┌─────────────────────┐
+                    │   Supabase 云端      │
+                    │   (PostgreSQL 数据库) │
+                    │                     │
+                    │  ├─ guests (宾客)    │
+                    │  ├─ timeline (流程)  │
+                    │  ├─ budget (预算)    │
+                    │  ├─ vehicles (车辆)  │
+                    │  └─ ... 16+ 张表     │
+                    │                     │
+                    │  Realtime 实时推送    │
+                    └──────┬──────┬───────┘
+                           │      │
+              ┌────────────┘      └────────────┐
+              │                                │
+    ┌─────────┴─────────┐          ┌──────────┴──────────┐
+    │  用户 A (管理员)    │          │  用户 B (普通成员)   │
+    │  电脑端 PWA/Electron│          │  手机端 PWA/APK     │
+    │  ↓ 修改数据         │  ←推送→  │  ↑ 实时收到更新      │
+    │  ↓ 写入 Supabase   │          │  ↓ 页面自动刷新      │
+    └───────────────────┘          └─────────────────────┘
+</code></pre>
+</div>
+
+<h3>数据协同工作流程</h3>
+<div class="step">
+  <div class="step-item"><strong>用户登录</strong>：所有人使用分配的账号密码登录（admin 管理员 / viewer 普通成员）</div>
+  <div class="step-item"><strong>数据存储</strong>：所有操作（新增/编辑/删除）直接写入 Supabase 云端数据库，不存储在本地</div>
+  <div class="step-item"><strong>实时推送</strong>：Supabase Realtime 监听 18 张表的变化，任何用户修改数据后，服务器立即推送变更事件</div>
+  <div class="step-item"><strong>自动刷新</strong>：其他在线用户的 App 收到推送后，300ms 内自动刷新对应模块的数据</div>
+  <div class="step-item"><strong>全局通知</strong>：数据变更同时触发右上角弹窗通知 + 操作日志记录（修改人、时间、内容）</div>
+</div>
+
+<h3>协同场景示例</h3>
+<div class="card">
+<table>
+<tr><th>场景</th><th>操作者</th><th>其他用户看到</th></tr>
+<tr>
+  <td>新增宾客「张三」</td>
+  <td>管理员 A 在电脑端操作</td>
+  <td>管理员 B 手机端 0.3 秒后宾客列表自动出现「张三」+ 右上角通知弹窗</td>
+</tr>
+<tr>
+  <td>修改流程时间</td>
+  <td>管理员 A 修改接亲时间 09:00→08:30</td>
+  <td>所有人流程页面自动更新 + 通知「A 修改了流程时间」</td>
+</tr>
+<tr>
+  <td>登记礼金</td>
+  <td>管理员 A 录入红包 1000 元</td>
+  <td>其他管理员收到通知 + 礼金总额自动更新</td>
+</tr>
+<tr>
+  <td>查看排班</td>
+  <td>普通成员打开车辆排班</td>
+  <td>看到最新排班信息，但无法修改（权限控制）</td>
+</tr>
+</table>
+</div>
+
+<h3>权限体系</h3>
+<div class="card">
+<table>
+<tr><th>角色</th><th>可操作</th><th>不可操作</th></tr>
+<tr>
+  <td><strong>admin（管理员）</strong></td>
+  <td>所有模块增删改查、用户管理、系统设置</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td><strong>viewer（普通成员）</strong></td>
+  <td>查看所有模块数据</td>
+  <td>礼金记账、用户管理、操作日志、系统设置（隐藏入口）</td>
+</tr>
+</table>
+</div>
+
+<div class="tip">
+  <strong>💡 关键点</strong>：无论用户使用电脑 PWA、桌面 Electron、还是安卓 APK，只要登录同一套账号体系，连接同一个 Supabase 数据库，数据就自动实时同步。不需要额外的服务器或中间件。
+</div>
+
+<!-- ==================== 对比总结 ==================== -->
+<h2>📊 三种方案对比</h2>
+
+<div class="card">
+<table>
+<tr><th>维度</th><th>PWA</th><th>Electron</th><th>Android APK</th></tr>
+<tr><td>电脑端支持</td><td>✅ Chrome/Edge 安装</td><td>✅ 原生 .exe</td><td>❌</td></tr>
+<tr><td>安卓支持</td><td>✅ Chrome 安装</td><td>❌</td><td>✅ 原生 .apk</td></tr>
+<tr><td>iOS 支持</td><td>✅ Safari 安装</td><td>❌</td><td>❌</td></tr>
+<tr><td>离线使用</td><td>✅ Service Worker 缓存</td><td>✅ 本地文件</td><td>✅ 本地文件</td></tr>
+<tr><td>实时同步</td><td>✅ Supabase</td><td>✅ Supabase</td><td>✅ Supabase</td></tr>
+<tr><td>安装难度</td><td>极简（访问网址即装）</td><td>中等（下载 exe）</td><td>中等（下载 apk）</td></tr>
+<tr><td>更新方式</td><td>自动（每次打开拉取最新）</td><td>需重新下载</td><td>需重新下载</td></tr>
+<tr><td>包体大小</td><td>0（无安装包）</td><td>~85MB</td><td>~5MB</td></tr>
+<tr><td>推荐场景</td><td><strong>日常使用首选</strong></td><td>无网络环境/习惯桌面软件</td><td>不用 Chrome 的安卓用户</td></tr>
+</table>
+</div>
+
+<div class="tip">
+  <strong>📋 推荐策略</strong>：PWA 作为主要使用方式（零门槛、自动更新），Electron 和 APK 作为补充（给不习惯 PWA 的用户）。三种方式共享同一套数据和账号，无缝协同。
+</div>
+
+<!-- ==================== 快速开始 ==================== -->
+<h2>🚀 快速开始</h2>
+
+<div class="card card-highlight">
+<h3>立即可用</h3>
+<p><strong>PWA 已部署上线</strong>，现在就可以体验：</p>
+<ul>
+  <li>线上地址：<code>https://faith-1028.github.io/wedding-planner/</code></li>
+  <li>管理员账号：<code>wedding_admin</code> / <code>Wedding2026!</code></li>
+  <li>电脑端：Chrome/Edge 打开网址 → 地址栏点安装图标</li>
+  <li>安卓端：Chrome 打开网址 → 菜单 → 添加到主屏幕</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>如需 .exe / .apk 安装包</h3>
+<ul>
+  <li><strong>桌面 .exe</strong>：进入 <code>desktop/</code> 目录，执行 <code>npm install && npm run build:nsis</code></li>
+  <li><strong>安卓 .apk</strong>：访问 <code>pwabuilder.com</code>，输入网址自动生成</li>
+  <li>或联系开发人员获取已构建好的安装包</li>
+</ul>
+</div>
+
+</div>
+</body>
+</html>

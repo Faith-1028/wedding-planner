@@ -135,6 +135,11 @@ function showFirstLoginWarning() {
         // 启动实时同步
         App.realtime.init();
 
+        // 初始化 AI 智能助手
+        if (App.assistant && typeof App.assistant.init === 'function') {
+            try { App.assistant.init(); } catch(e) { console.error('[Assistant] init error:', e); }
+        }
+
         // 显示首页
         App.ui.switchView('dashboard');
 
